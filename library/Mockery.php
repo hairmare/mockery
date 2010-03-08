@@ -19,7 +19,7 @@ class Mockery
         }
     }
 
-    public static function mock($className, $custom = null)
+    public static function mock($className, $custom = null, $constructorArgs = null)
     {
         if (is_array($custom) && !class_exists($className)) {
             $mockery = new self($className);
@@ -37,7 +37,12 @@ class Mockery
         } else {
             $class = $mockery->getMockClassName();
         }
-        $mockObject = new $class();
+        if (is_array($constructorArgs)) {
+            $reflectionObject = new ReflectionClass($class);
+            $mockObject = $reflectionObject->newInstanceArgs($constructorArgs);
+        } else {
+            $mockObject = new $class();
+        }
         if ($mockObject instanceof Mockery_Stub && is_array($custom)) {
             $mockObject->mockery_set($custom);
         } elseif (is_array($custom)) {
